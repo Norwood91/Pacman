@@ -160,6 +160,7 @@ var DIRECTIONS = {
 };
 exports.DIRECTIONS = DIRECTIONS;
 var OBJECT_TYPE = {
+  //these are used to set different classes on the divs in the games
   BLANK: 'blank',
   WALL: 'wall',
   DOT: 'dot',
