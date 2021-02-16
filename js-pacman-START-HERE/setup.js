@@ -1,26 +1,36 @@
 export const GRID_SIZE = 20;
 export const CELL_SIZE = 20;
 export const DIRECTIONS = {
+  //these are the directions that pacman will move
   ArrowLeft: {
+    //this is the keycode for the left arrow
     code: 37,
+    //Minus 1 means he's moving left
     movement: -1,
-    rotation: 180
+    //tells us how much to rotate to the left
+    rotation: 180,
   },
+
   ArrowUp: {
+    //this is the keycode for the up arrow
     code: 38,
     movement: -GRID_SIZE,
-    rotation: 270
+    rotation: 270,
   },
+
   ArrowRight: {
+    //this is the keycode for the right arrow
     code: 39,
     movement: 1,
-    rotation: 0
+    rotation: 0,
   },
+  //this is the keycode for the down arrow
   ArrowDown: {
+    //this is the keycode for the down arrow
     code: 40,
     movement: GRID_SIZE,
-    rotation: 90
-  }
+    rotation: 90,
+  },
 };
 
 export const OBJECT_TYPE = {
@@ -35,7 +45,7 @@ export const OBJECT_TYPE = {
   PACMAN: 'pacman',
   GHOST: 'ghost',
   SCARED: 'scared',
-  GHOSTLAIR: 'lair'
+  GHOSTLAIR: 'lair',
 };
 
 // Lookup array for classes
@@ -49,7 +59,7 @@ export const CLASS_LIST = [
   OBJECT_TYPE.CLYDE,
   OBJECT_TYPE.PILL,
   OBJECT_TYPE.PACMAN,
-  OBJECT_TYPE.GHOSTLAIR
+  OBJECT_TYPE.GHOSTLAIR,
 ];
 
 // prettier-ignore

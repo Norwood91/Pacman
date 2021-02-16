@@ -5,6 +5,7 @@
 body {
   background: url('background.jpg') no-repeat center center fixed;
   background-size: cover;
+  background: rgb(250, 178, 149);
 }
 
 #wrapper {
