@@ -645,15 +645,74 @@ gameWin = false;
 powerPillActive = false;
 powerPillTimer = null; //GAME FUNCTIONS
 
-function gameOver(pacman, grid) {}
+function gameOver(pacman, grid) {
+  document.removeEventListener('keydown', function (e) {
+    return pacman.handleKeyInput(e, gameBoard.objectExist);
+  });
+  gameBoard.showGameStatus(gameWin);
+  clearInterval(timer);
+  startButton.classList.remove('hide');
+}
 
-function checkCollision(pacman, ghosts) {}
+function checkCollision(pacman, ghosts) {
+  var collidedGhost = ghosts.find(function (ghost) {
+    return pacman.pos === ghost.pos;
+  });
+
+  if (collidedGhost) {
+    if (pacman.powerPill) {
+      gameBoard.removeObject(collidedGhost.pos, [_setup.OBJECT_TYPE.GHOST, _setup.OBJECT_TYPE.SCARED, collidedGhost.name]);
+      collidedGhost.pos = collidedGhost.startPos;
+      score += 100;
+    } else {
+      gameBoard.removeObject(pacman.pos, [_setup.OBJECT_TYPE.PACMAN]);
+      gameBoard.rotateDiv(pacman.pos, 0);
+      gameOver(pacman, gameGrid);
+    }
+  }
+}
 
 function gameLoop(pacman, ghosts) {
   gameBoard.moveCharacter(pacman);
+  checkCollision(pacman, ghosts);
   ghosts.forEach(function (ghost) {
     return gameBoard.moveCharacter(ghost);
   });
+  checkCollision(pacman, ghosts); //check if pacman eats a dot
+
+  if (gameBoard.objectExist(pacman.pos, _setup.OBJECT_TYPE.DOT)) {
+    gameBoard.removeObject(pacman.pos, [_setup.OBJECT_TYPE.DOT]);
+    gameBoard.dotCount--;
+    score += 10;
+  } //check if pacman eats a powerPill
+
+
+  if (gameBoard.objectExist(pacman.pos, _setup.OBJECT_TYPE.PILL)) {
+    gameBoard.removeObject(pacman.pos, [_setup.OBJECT_TYPE.PILL]);
+    pacman.powerPill = true;
+    score += 50;
+    clearTimeout(powerPillTimer);
+    powerPillTimer = setTimeout(function () {
+      return pacman.powerPill = false;
+    }, POWER_PILL_TIME);
+  } //Change ghost to scare mode when powerpill eating
+
+
+  if (pacman.powerPill !== powerPillActive) {
+    powerPillActive = pacman.powerPill;
+    ghosts.forEach(function (ghost) {
+      return ghost.isScared = pacman.powerPill;
+    });
+  } //check if all dots have been eaten
+
+
+  if (gameBoard.dotCount === 0) {
+    gameWin = true;
+    gameOver(pacman, ghosts);
+  } //Show the score
+
+
+  scoreTable.innerHTML = score;
 }
 
 function startGame() {
@@ -703,7 +762,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57712" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60505" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
