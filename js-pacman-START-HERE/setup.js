@@ -1,5 +1,5 @@
 export const GRID_SIZE = 20;
-export const CELL_SIZE = 25;
+export const CELL_SIZE = 20;
 export const DIRECTIONS = {
   //these are the directions that pacman will move
   ArrowLeft: {

@@ -126,7 +126,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.LEVEL = exports.CLASS_LIST = exports.OBJECT_TYPE = exports.DIRECTIONS = exports.CELL_SIZE = exports.GRID_SIZE = void 0;
 var GRID_SIZE = 20;
 exports.GRID_SIZE = GRID_SIZE;
-var CELL_SIZE = 25;
+var CELL_SIZE = 20;
 exports.CELL_SIZE = CELL_SIZE;
 var DIRECTIONS = {
   //these are the directions that pacman will move
@@ -266,6 +266,23 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 module.exports = _createClass;
+},{}],"node_modules/@babel/runtime/helpers/defineProperty.js":[function(require,module,exports) {
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
 },{}],"GameBoard.js":[function(require,module,exports) {
 "use strict";
 
@@ -280,13 +297,21 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
 var _setup = require("./setup");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GameBoard = /*#__PURE__*/function () {
   function GameBoard(DOMGrid) {
+    var _this = this;
+
     (0, _classCallCheck2.default)(this, GameBoard);
+    (0, _defineProperty2.default)(this, "objectExist", function (pos, object) {
+      //checking to see if the passed in class named 'object' is present at the current grid position
+      return _this.grid[pos].classList.contains(object);
+    });
     this.dotCount = 0;
     this.grid = [];
     this.DOMGrid = DOMGrid;
@@ -303,7 +328,7 @@ var GameBoard = /*#__PURE__*/function () {
   }, {
     key: "createGrid",
     value: function createGrid(level) {
-      var _this = this;
+      var _this2 = this;
 
       //when a new game is started, the dotcount is set back to 0
       this.dotCount = 0;
@@ -318,12 +343,12 @@ var GameBoard = /*#__PURE__*/function () {
         div.classList.add('square', _setup.CLASS_LIST[square]);
         div.style.cssText = "width: ".concat(_setup.CELL_SIZE, "px; height: ").concat(_setup.CELL_SIZE, "px;");
 
-        _this.DOMGrid.appendChild(div); //push the div to the this.grid array.
+        _this2.DOMGrid.appendChild(div); //push the div to the this.grid array.
 
 
-        _this.grid.push(div);
+        _this2.grid.push(div);
 
-        if (_setup.CLASS_LIST[square] === _setup.OBJECT_TYPE.DOT) _this.dotCount++;
+        if (_setup.CLASS_LIST[square] === _setup.OBJECT_TYPE.DOT) _this2.dotCount++;
       });
     }
   }, {
@@ -343,16 +368,32 @@ var GameBoard = /*#__PURE__*/function () {
       (_this$grid$pos$classL2 = this.grid[pos].classList).remove.apply(_this$grid$pos$classL2, (0, _toConsumableArray2.default)(classes));
     }
   }, {
-    key: "objectExist",
-    value: function objectExist(pos, object) {
-      //checking to see if the passed in class named 'object' is present at the current grid position
-      return this.grid[pos].classList.contains(object);
-    } //rotates pacman on the grid
-
-  }, {
     key: "rotateDiv",
+    //rotates pacman on the grid
     value: function rotateDiv(pos, deg) {
       this.grid[pos].style.transform = "rotate(".concat(deg, "deg)");
+    }
+  }, {
+    key: "moveCharacter",
+    value: function moveCharacter(character) {
+      if (character.shouldMove()) {
+        var _character$getNextMov = character.getNextMove(this.objectExist),
+            nextMovePos = _character$getNextMov.nextMovePos,
+            direction = _character$getNextMov.direction;
+
+        var _character$makeMove = character.makeMove(),
+            classesToRemove = _character$makeMove.classesToRemove,
+            classesToAdd = _character$makeMove.classesToAdd;
+
+        if (character.rotation && nextMovePos !== character.pos) {
+          this.rotateDiv(nextMovePos, character.dir.rotation);
+          this.rotateDiv(character.pos, 0);
+        }
+
+        this.removeObject(character.pos, classesToRemove);
+        this.addObject(nextMovePos, classesToAdd);
+        character.setNewPos(nextMovePos, direction);
+      }
     }
   }], [{
     key: "createGameBoard",
@@ -367,7 +408,7 @@ var GameBoard = /*#__PURE__*/function () {
 
 var _default = GameBoard;
 exports.default = _default;
-},{"@babel/runtime/helpers/toConsumableArray":"node_modules/@babel/runtime/helpers/toConsumableArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","./setup":"setup.js"}],"Pacman.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/toConsumableArray":"node_modules/@babel/runtime/helpers/toConsumableArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","./setup":"setup.js"}],"Pacman.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -448,7 +489,7 @@ var Pacman = /*#__PURE__*/function () {
       }
 
       var nextMovePos = this.pos + dir.movement;
-      if (objectExist(nextMovePos, _setup.OBJECT_TYPE.WALL)) return;
+      if (objectExist(nextMovePos, _setup.OBJECT_TYPE.WALL) || objectExist(nextMovePos, _setup.OBJECT_TYPE.GHOSTLAIR)) return;
       this.dir = dir;
     }
   }]);
@@ -487,15 +528,29 @@ gameWin = false;
 powerPillActive = false;
 powerPillTimer = null; //GAME FUNCTIONS
 
-var gameOver = function gameOver(pacman, grid) {};
+function gameOver(pacman, grid) {}
 
-var checkCollision = function checkCollision(pacman, ghosts) {};
+function checkCollision(pacman, ghosts) {}
 
-var gameLoop = function gameLoop(pacman, ghosts) {};
+function gameLoop(pacman, ghosts) {
+  gameBoard.moveCharacter(pacman);
+}
 
-var startGame = function startGame() {
-  console.log('Hello');
-}; //INITIALIZE GAME
+function startGame() {
+  gameWin = false;
+  powerPillActive = false;
+  score = 0;
+  startButton.classList.add('hide');
+  gameBoard.createGrid(_setup.LEVEL);
+  var pacman = new _Pacman.default(2, 287);
+  gameBoard.addObject(287, [_setup.OBJECT_TYPE.PACMAN]);
+  document.addEventListener('keydown', function (e) {
+    return pacman.handleKeyInput(e, gameBoard.objectExist);
+  });
+  timer = setInterval(function () {
+    return gameLoop(pacman);
+  }, GLOBAL_SPEED);
+} //INITIALIZE GAME
 
 
 startButton.addEventListener('click', startGame);
@@ -527,7 +582,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49495" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57712" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
