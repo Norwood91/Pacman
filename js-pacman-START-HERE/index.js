@@ -1,5 +1,6 @@
 import { LEVEL, OBJECT_TYPE } from './setup';
 import GameBoard from './GameBoard';
+import Pacman from './Pacman';
 //DOM ELEMENTS
 const gameGrid = document.querySelector('#game');
 const scoreTable = document.querySelector('#score');
@@ -26,4 +27,9 @@ const checkCollision = (pacman, ghosts) => {};
 
 const gameLoop = (pacman, ghosts) => {};
 
-const startGame = () => {};
+const startGame = () => {
+  console.log('Hello');
+};
+
+//INITIALIZE GAME
+startButton.addEventListener('click', startGame);
