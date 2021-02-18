@@ -49,7 +49,9 @@ function gameOver(pacman, grid) {
 
 function checkCollision(pacman, ghosts) {
   const collidedGhost = ghosts.find((ghost) => pacman.pos === ghost.pos);
+  //If there's a ghost at the same position as pacman
   if (collidedGhost) {
+    //and if pacman ate a powerpill
     if (pacman.powerPill) {
       playAudio(soundGhost);
       gameBoard.removeObject(collidedGhost.pos, [
@@ -57,11 +59,14 @@ function checkCollision(pacman, ghosts) {
         OBJECT_TYPE.SCARED,
         collidedGhost.name,
       ]);
+      //Start the removed ghost(collidedghost) back at the ghost starting position in the lair
       collidedGhost.pos = collidedGhost.startPos;
       score += 100;
     } else {
+      //Else remove pacman
       gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.PACMAN]);
       gameBoard.rotateDiv(pacman.pos, 0);
+      //End game
       gameOver(pacman, gameGrid);
     }
   }

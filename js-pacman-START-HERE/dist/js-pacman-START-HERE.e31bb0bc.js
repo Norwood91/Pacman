@@ -686,17 +686,21 @@ function gameOver(pacman, grid) {
 function checkCollision(pacman, ghosts) {
   var collidedGhost = ghosts.find(function (ghost) {
     return pacman.pos === ghost.pos;
-  });
+  }); //If there's a ghost at the same position as pacman
 
   if (collidedGhost) {
+    //and if pacman ate a powerpill
     if (pacman.powerPill) {
       playAudio(_eat_ghost.default);
-      gameBoard.removeObject(collidedGhost.pos, [_setup.OBJECT_TYPE.GHOST, _setup.OBJECT_TYPE.SCARED, collidedGhost.name]);
+      gameBoard.removeObject(collidedGhost.pos, [_setup.OBJECT_TYPE.GHOST, _setup.OBJECT_TYPE.SCARED, collidedGhost.name]); //Start the removed ghost(collidedghost) back at the ghost starting position in the lair
+
       collidedGhost.pos = collidedGhost.startPos;
       score += 100;
     } else {
+      //Else remove pacman
       gameBoard.removeObject(pacman.pos, [_setup.OBJECT_TYPE.PACMAN]);
-      gameBoard.rotateDiv(pacman.pos, 0);
+      gameBoard.rotateDiv(pacman.pos, 0); //End game
+
       gameOver(pacman, gameGrid);
     }
   }
